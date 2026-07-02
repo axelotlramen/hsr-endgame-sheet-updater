@@ -9,6 +9,7 @@ dependencies = [
     "google-auth>=2.53.0",
     "gspread>=6.2.1",
     "httpx>=0.28.1",
+    "nox>=2026.4.10",
     "pandas>=3.0.3",
     "python-dotenv>=1.2.2",
 ]

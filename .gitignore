@@ -13,3 +13,7 @@ wheels/
 .env
 aggregate_endgame.py
 hsr-endgame.json
+aa.json
+apoc.json
+moc.json
+pf.json

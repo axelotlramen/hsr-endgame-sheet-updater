@@ -29,10 +29,10 @@ async def run():
         raise NotImplementedError
 
     elif args.mode == "pf":
-        raise NotImplementedError
+        await client.write_mode(args.mode, args.version)
 
     elif args.mode == "aa":
-        raise NotImplementedError
+        await client.write_mode(args.mode, args.version)
 
 
 if __name__ == "__main__":

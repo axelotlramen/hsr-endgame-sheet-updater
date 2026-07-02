@@ -12,3 +12,7 @@ class HSRMode(str, enum.Enum):
     PF = "Pure Fiction 4"
 
     MOC = "Memory of Chaos 4"
+
+    AA = "Anomaly Arbitration"
+
+    AA_KING = "Anomaly Arbitration: King"
