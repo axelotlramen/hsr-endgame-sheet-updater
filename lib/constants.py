@@ -1,3 +1,5 @@
+__all__ = ["HSR_ELEMENTS", "HSR_PATHS", "HSR_SHORT_NAMES"]
+
 HSR_ELEMENTS = {
     "Ice": "Ice",
     "Fire": "Fire",

@@ -3,8 +3,10 @@ from dataclasses import dataclass, field
 import gspread
 from google.oauth2.service_account import Credentials
 
-from enums import SheetRow
-from env import require_env
+from .enums import SheetRow
+from .env import require_env
+
+__all__ = ["UpsertResult", "GoogleSheetsClient"]
 
 DATE_COL, VERSION_COL, MODE_COL, SIDE_COL, SCORE_COL = 0, 1, 2, 3, -1
 
@@ -64,6 +66,10 @@ class GoogleSheetsClient:
             worksheet.delete_rows(row_number)
 
         return [row for _, row in matching]
+
+    def get_all_rows(self) -> list[SheetRow]:
+        """Return every row in the Endgame worksheet, including the header row."""
+        return self._get_endgame_worksheet().get_all_values()
 
     def _get_endgame_worksheet(self) -> gspread.Worksheet:
         sheet = self.gs_client.open(self.SHEET_NAME)

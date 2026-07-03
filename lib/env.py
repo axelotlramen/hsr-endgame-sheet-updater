@@ -1,5 +1,7 @@
 import os
 
+__all__ = ["require_env"]
+
 
 def require_env(name: str) -> str:
     """Return the named environment variable, raising a clear error if it's unset or empty."""

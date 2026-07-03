@@ -1,28 +1,17 @@
 import asyncio
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-from client import HSRClient
-from enums import ChallengeMode
-from notifier import DiscordNotifier, ModeReport
+from lib import ChallengeMode, HSRClient, ModeReport, notifier_from_env
 
 VERSION_FILE = Path("version.txt")
 
 DAILY_MODES = (ChallengeMode.APOC, ChallengeMode.PF, ChallengeMode.AA)
 
 
-def _build_notifier() -> DiscordNotifier | None:
-    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
-    if not webhook_url:
-        return None
-
-    return DiscordNotifier(webhook_url, discord_id=os.getenv("DISCORD_USER_ID"))
-
-
 async def run() -> None:
-    notifier = _build_notifier()
+    notifier = notifier_from_env()
     reported = False
 
     try:

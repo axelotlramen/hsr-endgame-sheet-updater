@@ -1,5 +1,7 @@
 from enum import Enum
 
+__all__ = ["Element"]
+
 
 class Element(str, Enum):
     PHYSICAL = "physical"

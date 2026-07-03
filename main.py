@@ -3,8 +3,7 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from client import HSRClient
-from enums import ChallengeMode
+from lib import ChallengeMode, HSRClient
 
 
 def parse_args() -> argparse.Namespace:
