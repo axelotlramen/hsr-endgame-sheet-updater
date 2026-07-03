@@ -13,6 +13,14 @@ The script fetches a player's endgame data through the [`genshin`](https://githu
 
 ---
 
+## Project layout
+
+- `main.py`, `automate.py`, `weekly_usage.py`: the three entry points (run manually with `uv run <file>.py`).
+- `lib/`: all supporting code (the Google Sheets/HoYoLab clients, Discord notifier, pydantic models, etc.), kept out of the root so it's clear at a glance which files are meant to be run directly.
+- `data/`: generated CSVs (see [Weekly character usage report](#weekly-character-usage-report)).
+
+---
+
 ## Features
 
 - Fetches endgame data from HoYoLab
@@ -143,3 +151,33 @@ If `DISCORD_WEBHOOK_URL` is set (locally in `.env`, or as a GitHub secret), ever
 If a mode has nothing new, it's simply reported as "No changes" (you'll still get a message every day, so you know the automation ran, but it won't be noisy about quiet days). `@mention`s (via `DISCORD_USER_ID`) only happen when something actually failed, so you know to re-run the workflow manually.
 
 This is entirely optional: without `DISCORD_WEBHOOK_URL` set, `automate.py` runs exactly as it would otherwise, just without sending any notifications.
+
+---
+
+## Weekly character usage report
+
+A second GitHub Actions workflow (`.github/workflows/weekly-usage.yml`) runs `weekly_usage.py` every Tuesday (and can also be triggered manually from the Actions tab), reading the whole sheet and generating two CSVs under `data/`:
+
+- **`data/usage_overall.csv`**: one row per character, with how many times they've been used since patch 2.0, since patch 3.0, and since patch 4.0.
+- **`data/usage_by_endgame.csv`**: one row per character per endgame (Anomaly Arbitration and Anomaly Arbitration: King are counted separately), with usage count and average score for the same three windows.
+
+The workflow commits the refreshed CSVs back to the repo only when they actually changed, so the CSVs double as a version history of usage over time. It reuses the same `GOOGLE_SERVICE_ACCOUNT_JSON`, `DISCORD_WEBHOOK_URL`, and `DISCORD_USER_ID` secrets as the daily workflow (no new secrets to add); it doesn't need `HSR_COOKIES`/`HSR_UID` since it only reads the already-populated sheet, not HoYoLab.
+
+Like the daily summary, this posts a Discord message every run, whether or not anything changed (so a quiet week still confirms the workflow ran). The message has two parts:
+
+1. **What changed**, scoped to only the current patch (`Uses Since 4.0` / `Avg Score Since 4.0`, not the older 2.0/3.0 windows), shown as a small monospace table, for example:
+
+   ```
+   Unit      Uses Since 4.0
+   -------   --------------
+   Feixiao   8 → 9
+   Phainon   0 → 2
+   ```
+
+2. **A top-10 leaderboard** of the most-used characters since the current patch (across all endgames, from `data/usage_overall.csv`), sent every run regardless of whether anything changed.
+
+"The current patch" is always `PATCH_THRESHOLDS[-1]` in `weekly_usage.py` (currently `4.0`). When patch 5.0 releases, just add `5.0` to that tuple and everything (the CSV columns, the diff table, and the leaderboard) shifts to treat it as current, with no other code changes needed.
+
+For this workflow's auto-commit step to work, the repository needs to allow GitHub Actions to push commits: under `Settings -> Actions -> General -> Workflow permissions`, select **Read and write permissions**.
+
+`aggregate_endgame.py` is a separate, gitignored, personal scratch script unrelated to this workflow; it's not run as part of the pipeline.
