@@ -1,0 +1,45 @@
+name: Weekly Character Usage Update
+
+on:
+  schedule:
+    # Tuesdays, 12:00 UTC
+    - cron: "0 12 * * 2"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  weekly-usage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8.2.0
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Write Google service account credentials
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: printf '%s' "$GOOGLE_SERVICE_ACCOUNT_JSON" > service_account.json
+
+      - name: Run weekly usage aggregation
+        env:
+          SHEET_CREDENTIALS: service_account.json
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
+        run: uv run weekly_usage.py
+
+      - name: Commit updated usage CSVs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/usage_overall.csv data/usage_by_endgame.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "Update weekly character usage stats"
+            git push
+          fi
