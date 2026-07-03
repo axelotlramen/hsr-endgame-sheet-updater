@@ -1,9 +1,8 @@
-import typing
-
 import pydantic
 
 from models.apoc import ChallengeBuff, FloorCharacter, PartialTime
 from models.model import Aliased
+
 
 class AnomalySeason(pydantic.BaseModel):
     id: int = Aliased("group_id")
@@ -14,17 +13,20 @@ class AnomalySeason(pydantic.BaseModel):
     game_version: str
     icon: str = Aliased("theme_pic_path")
 
+
 class AnomalyBossInfo(pydantic.BaseModel):
     id: int = Aliased("maze_id")
     name: str = Aliased("name_mi18n")
     game_mode_name: str = Aliased("hard_mode_name_mi18n")
     icon: str
 
+
 class AnomalyMiniBossInfo(pydantic.BaseModel):
     id: int = Aliased("maze_id")
     level_name: str = Aliased("name")
     name: str = Aliased("monster_name")
     icon: str = Aliased("monster_icon")
+
 
 class AnomalyBossRecord(pydantic.BaseModel):
     id: int = Aliased("maze_id")
@@ -40,14 +42,16 @@ class AnomalyBossRecord(pydantic.BaseModel):
     medal_icon: str = Aliased("challenge_peak_rank_icon")
     record_unique_key: str
 
+
 class AnomalyMiniBossRecord(pydantic.BaseModel):
     id: int = Aliased("maze_id")
     has_data: bool = Aliased("has_challenge_record")
-    challenge_time: typing.Optional[PartialTime]
+    challenge_time: PartialTime | None
     avatars: list[FloorCharacter]
     cycles_used: int = Aliased("round_num")
     stars: int = Aliased("star_num")
     is_quick_clear: bool = Aliased("is_fast")
+
 
 class AnomalyRecord(pydantic.BaseModel):
     season: AnomalySeason = Aliased("group")
@@ -56,11 +60,12 @@ class AnomalyRecord(pydantic.BaseModel):
     has_data: bool = Aliased("has_challenge_record")
     challenge_attempts: int = Aliased("battle_num")
 
-    boss_record: typing.Optional[AnomalyBossRecord] = Aliased(default=None)
+    boss_record: AnomalyBossRecord | None = Aliased(default=None)
     mini_boss_records: list[AnomalyMiniBossRecord] = Aliased("mob_records")
 
     boss_stars: int
     mini_boss_stars: int = Aliased("mob_stars")
+
 
 class AnomalySummary(pydantic.BaseModel):
     challenge_attempts: int = Aliased("total_battle_num")
@@ -69,15 +74,20 @@ class AnomalySummary(pydantic.BaseModel):
     medal_type: str = Aliased("challenge_peak_rank_icon_type")
     medal_icon: str = Aliased("challenge_peak_rank_icon")
 
+
 class AnomalyPlayer(pydantic.BaseModel):
     server: str
     nickname: str
     level: int
     uid: str = Aliased("role_id")
 
+
 class AnomalyArbitration(pydantic.BaseModel):
-    """Anomaly arbitration challenge. """
+    """Anomaly arbitration challenge."""
+
     records: list[AnomalyRecord] = Aliased("challenge_peak_records")
     has_more_boss_record: bool
-    summary: typing.Optional[AnomalySummary] = Aliased("challenge_peak_best_record_brief", default=None)
+    summary: AnomalySummary | None = Aliased(
+        "challenge_peak_best_record_brief", default=None
+    )
     player: AnomalyPlayer = Aliased("role")

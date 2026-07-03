@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Element(str, Enum):
     PHYSICAL = "physical"
     FIRE = "fire"

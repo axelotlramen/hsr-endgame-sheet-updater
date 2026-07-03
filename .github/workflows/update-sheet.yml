@@ -1,0 +1,34 @@
+name: Update HSR Endgame Sheet
+
+on:
+  schedule:
+    # 12:00 UTC daily
+    - cron: "0 12 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  update-sheet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Write Google service account credentials
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: printf '%s' "$GOOGLE_SERVICE_ACCOUNT_JSON" > service_account.json
+
+      - name: Run daily automation
+        env:
+          HSR_COOKIES: ${{ secrets.HSR_COOKIES }}
+          HSR_UID: ${{ secrets.HSR_UID }}
+          SHEET_CREDENTIALS: service_account.json
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
+        run: uv run automate.py

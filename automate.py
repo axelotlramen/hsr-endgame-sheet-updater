@@ -1,79 +1,63 @@
 import asyncio
-import json
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from client import HSRClient
+from enums import ChallengeMode
+from notifier import DiscordNotifier, ModeReport
+
+VERSION_FILE = Path("version.txt")
+
+DAILY_MODES = (ChallengeMode.APOC, ChallengeMode.PF, ChallengeMode.AA)
 
 
-class AutomationClient:
-    def __init__(self) -> None:
-        self.hsr_client = HSRClient()
+def _build_notifier() -> DiscordNotifier | None:
+    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+    if not webhook_url:
+        return None
 
-    async def get_endgame(self):
-        apoc_raw = await self.hsr_client.genshin_client.get_starrail_apc_shadow(uid=self.hsr_client.uid, raw=True)
-
-        Path("apoc.json").write_text(json.dumps(apoc_raw, indent=2, ensure_ascii=False))
-
-        pf_raw = await self.hsr_client.genshin_client.get_starrail_pure_fiction(uid=self.hsr_client.uid, raw=True)
-
-        Path("pf.json").write_text(json.dumps(pf_raw, indent=2, ensure_ascii=False))
-
-        moc_raw = await self.hsr_client.genshin_client.get_starrail_challenge(uid=self.hsr_client.uid, raw=True)
-
-        Path("moc.json").write_text(json.dumps(moc_raw, indent=2, ensure_ascii=False))
-
-        aa_raw = await self.hsr_client.genshin_client.get_anomaly_arbitration(uid=self.hsr_client.uid, raw=True)
-
-        Path("aa.json").write_text(json.dumps(aa_raw, indent=2, ensure_ascii=False))
-
-    async def get_random(self):
-        apoc_data = await self.hsr_client.genshin_client.get_starrail_pure_fiction(uid=self.hsr_client.uid, raw=True)
-
-        # apoc_model = ApocalypticShadow(**apoc_data)
-
-        Path("pf.json").write_text(
-            json.dumps(apoc_data, indent=2, ensure_ascii=False)
-        )
-
-    async def get_random_2(self):
-        game_modes = await self.hsr_client.genshin_client.get_starrail_lineup_game_modes()
-
-        moc_stage_12 = self.hsr_client.genshin_client.get_starrail_lineup_floor(game_modes, type="Chasm", floor=12)
-        print(moc_stage_12)
-
-        if moc_stage_12 is None:
-            return "Nothing happened"
-
-        schedules = await self.hsr_client.genshin_client.get_starrail_lineup_schedules("Chasm")
-        # for schedule in schedules:
-        #     print(f"{schedule.id} - {schedule.name} ({schedule.start_time} ~ {schedule.end_time})")
-
-        current = schedules[0]
-        print(current)
-        next_page_token = None
-        for _ in range(5):
-            page = await self.hsr_client.genshin_client.get_starrail_lineups(tag_id=moc_stage_12.id, group_id=current.id, type="Chasm", next_page_token=next_page_token)
-            print(page)
-
-            for lineup in page.lineups:
-                print(lineup)
-            
-            next_page_token = page.next_page_token
-
-        return "Hi"
+    return DiscordNotifier(webhook_url, discord_id=os.getenv("DISCORD_USER_ID"))
 
 
+async def run() -> None:
+    notifier = _build_notifier()
+    reported = False
 
-    def get_version(self) -> str:
-        return Path("version.txt").read_text().strip()
+    try:
+        version = VERSION_FILE.read_text().strip()
 
-async def run():
-    client = AutomationClient()
+        client = HSRClient()
+        await client.init()
 
-    await client.get_endgame()
-    
+        reports = []
+        for mode in DAILY_MODES:
+            try:
+                result = await client.write_mode(mode, version)
+                reports.append(
+                    ModeReport(
+                        mode=mode, changed=result.changed, diff_lines=result.diff_lines
+                    )
+                )
+            except Exception as error:
+                reports.append(ModeReport(mode=mode, error=str(error)))
+
+        if notifier is not None:
+            await notifier.send_daily_summary(version, reports)
+        reported = True
+
+        failed_modes = [report.mode.value for report in reports if report.error]
+        if failed_modes:
+            raise RuntimeError(f"Modes failed: {', '.join(failed_modes)}")
+
+    except Exception as error:
+        if notifier is not None and not reported:
+            await notifier.send_failure("HSR Endgame Automation (setup)", str(error))
+
+        raise
+
+
 if __name__ == "__main__":
     load_dotenv()
     asyncio.run(run())

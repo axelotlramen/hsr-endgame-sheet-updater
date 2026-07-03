@@ -1,11 +1,10 @@
-import typing
+import datetime
 
 import pydantic
 
-import datetime
-
 from models.enums import Element
 from models.model import Aliased
+
 
 class PartialTime(pydantic.BaseModel):
     """Partial time model."""
@@ -18,8 +17,11 @@ class PartialTime(pydantic.BaseModel):
 
     @property
     def datetime(self) -> datetime.datetime:
-        return datetime.datetime(self.year, self.month, self.day, self.hour, self.minute)
-    
+        return datetime.datetime(
+            self.year, self.month, self.day, self.hour, self.minute
+        )
+
+
 class FloorCharacter(pydantic.BaseModel):
     id: int
     level: int
@@ -28,16 +30,19 @@ class FloorCharacter(pydantic.BaseModel):
     element: Element
     eidolon: int = Aliased("rank")
 
+
 class ChallengeBuff(pydantic.BaseModel):
     id: int
     name: str = Aliased("name_mi18n")
     description: str = Aliased("desc_mi18n")
     icon: str
 
+
 class ApocalypticShadowBoss(pydantic.BaseModel):
     id: int
     name: str = Aliased("name_mi18n")
     icon: str
+
 
 class ApocalypticShadowSeason(pydantic.BaseModel):
     id: int = Aliased("schedule_id")
@@ -46,16 +51,18 @@ class ApocalypticShadowSeason(pydantic.BaseModel):
     begin_time: PartialTime
     end_time: PartialTime
 
-    upper_boss: typing.Optional[ApocalypticShadowBoss]
-    lower_boss: typing.Optional[ApocalypticShadowBoss]
-    starward_boss: typing.Optional[ApocalypticShadowBoss] = Aliased("tierce_boss", default=None)
+    upper_boss: ApocalypticShadowBoss | None
+    lower_boss: ApocalypticShadowBoss | None
+    starward_boss: ApocalypticShadowBoss | None = Aliased("tierce_boss", default=None)
+
 
 class ApocalypticShadowFloorNode(pydantic.BaseModel):
-    challenge_time: typing.Optional[PartialTime]
+    challenge_time: PartialTime | None
     avatars: list[FloorCharacter]
-    buff: typing.Optional[ChallengeBuff]
+    buff: ChallengeBuff | None
     score: int
     boss_defeated: bool
+
 
 class ApocalypticShadowFloor(pydantic.BaseModel):
     id: int = Aliased("maze_id")
@@ -67,12 +74,14 @@ class ApocalypticShadowFloor(pydantic.BaseModel):
 
     last_update_time: PartialTime
 
-    node_1: typing.Optional[ApocalypticShadowFloorNode] = Aliased(default=None)
-    node_2: typing.Optional[ApocalypticShadowFloorNode] = Aliased(default=None)
-    node_3: typing.Optional[ApocalypticShadowFloorNode] = Aliased(default=None)
+    node_1: ApocalypticShadowFloorNode | None = Aliased(default=None)
+    node_2: ApocalypticShadowFloorNode | None = Aliased(default=None)
+    node_3: ApocalypticShadowFloorNode | None = Aliased(default=None)
+
 
 class ApocalypticShadow(pydantic.BaseModel):
-    """Apocalyptic shadow challenge. """
+    """Apocalyptic shadow challenge."""
+
     total_stars: int = Aliased("star_num")
     starward_stars: int = Aliased("extra_star_num", default=0)
     max_floor: str

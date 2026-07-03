@@ -1,9 +1,8 @@
-import typing
-
 import pydantic
 
 from models.apoc import ChallengeBuff, FloorCharacter, PartialTime
 from models.model import Aliased
+
 
 class PureFictionSeason(pydantic.BaseModel):
     id: int = Aliased("schedule_id")
@@ -12,11 +11,13 @@ class PureFictionSeason(pydantic.BaseModel):
     begin_time: PartialTime
     end_time: PartialTime
 
+
 class PureFictionFloorNode(pydantic.BaseModel):
-    challenge_time: typing.Optional[PartialTime]
+    challenge_time: PartialTime | None
     avatars: list[FloorCharacter]
-    buff: typing.Optional[ChallengeBuff]
+    buff: ChallengeBuff | None
     score: int
+
 
 class PureFictionFloor(pydantic.BaseModel):
     id: int = Aliased("maze_id")
@@ -27,9 +28,9 @@ class PureFictionFloor(pydantic.BaseModel):
     is_quick_clear: bool = Aliased("is_fast")
     has_starward_mode: bool = Aliased("is_tierce", default=False)
 
-    node_1: typing.Optional[PureFictionFloorNode] = Aliased(default=None)
-    node_2: typing.Optional[PureFictionFloorNode] = Aliased(default=None)
-    node_3: typing.Optional[PureFictionFloorNode] = Aliased(default=None)
+    node_1: PureFictionFloorNode | None = Aliased(default=None)
+    node_2: PureFictionFloorNode | None = Aliased(default=None)
+    node_3: PureFictionFloorNode | None = Aliased(default=None)
 
     @property
     def score(self) -> int:
@@ -40,8 +41,10 @@ class PureFictionFloor(pydantic.BaseModel):
             if node is not None
         )
 
+
 class PureFiction(pydantic.BaseModel):
-    """Pure fiction challenge. """
+    """Pure fiction challenge."""
+
     total_stars: int = Aliased("star_num")
     starward_stars: int = Aliased("extra_star_num", default=0)
     max_floor: str

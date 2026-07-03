@@ -4,35 +4,27 @@ import asyncio
 from dotenv import load_dotenv
 
 from client import HSRClient
+from enums import ChallengeMode
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("mode", choices=["apoc", "moc", "pf", "aa"])
+    parser.add_argument("mode", choices=[mode.value for mode in ChallengeMode])
 
     parser.add_argument("version")
 
     return parser.parse_args()
 
 
-async def run():
+async def run() -> None:
     args = parse_args()
+    mode = ChallengeMode(args.mode)
 
     client = HSRClient()
     await client.init()
 
-    if args.mode == "apoc":
-        await client.write_mode(args.mode, args.version)
-
-    elif args.mode == "moc":
-        raise NotImplementedError
-
-    elif args.mode == "pf":
-        await client.write_mode(args.mode, args.version)
-
-    elif args.mode == "aa":
-        await client.write_mode(args.mode, args.version)
+    await client.write_mode(mode, args.version)
 
 
 if __name__ == "__main__":

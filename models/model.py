@@ -1,12 +1,12 @@
-from __future__ import annotations
 import typing
 
 import pydantic
 
 __all__ = ["Aliased"]
 
+
 def Aliased(
-    alias: typing.Optional[str] = None,
+    alias: str | None = None,
     default: typing.Any = ...,
     **kwargs: typing.Any,
 ) -> typing.Any:

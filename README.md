@@ -6,8 +6,8 @@ Currently supported:
 
 - ✅ Apocalyptic Shadow (`apoc`)
 - 🚧 Memory of Chaos (`moc`)
-- 🚧 Pure Fiction (`pf`)
-- 🚧 Apocalyptic Archive (`aa`)
+- ✅ Pure Fiction (`pf`)
+- ✅ Anomaly Arbitration (`aa`)
 
 The script retrieves a player's endgame data through the [`genshin`](https://github.com/seriaati/genshin.py) API, converts character IDs into readable names, and uploads the results to a Google Spreadsheet.
 
@@ -31,7 +31,7 @@ Example output:
 
 ## Requirements
 
-- Python 3.11+
+- Python 3.13+
 - A HoYoLab account
 - HoYoLab cookies
 - A Google account
@@ -136,3 +136,42 @@ Example:
 ```bash
 python main.py apoc 4.3
 ```
+
+---
+
+## Automation
+
+A GitHub Actions workflow (`.github/workflows/update-sheet.yml`) runs `automate.py` once a day
+(and can also be triggered manually via the "Run workflow" button), updating Apocalyptic Shadow,
+Pure Fiction, and Anomaly Arbitration. Each run **replaces** any existing rows for the same
+date/version/mode instead of duplicating them, so re-runs on the same day are safe.
+
+To enable it, add the following secrets under the repository's
+`Settings -> Secrets and variables -> Actions`:
+
+| Secret                       | Value                                                                     |
+| ----------------------------- | -------------------------------------------------------------------------- |
+| `HSR_COOKIES`                 | Same value as your local `.env`'s `HSR_COOKIES`                          |
+| `HSR_UID`                     | Same value as your local `.env`'s `HSR_UID`                              |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | The **full contents** of your Google Service Account JSON key file       |
+| `DISCORD_WEBHOOK_URL`         | *(Optional)* A Discord webhook URL to send daily status updates to       |
+| `DISCORD_USER_ID`             | *(Optional)* Your Discord user ID to `@mention` when something fails     |
+
+The schedule defaults to `12:00 UTC` daily — edit the `cron` expression in the workflow file to
+land after your server's daily reset if you'd like fresher data.
+
+### Discord notifications
+
+If `DISCORD_WEBHOOK_URL` is set (locally in `.env` or as a GitHub secret), every run — whether or
+not anything failed — posts a single daily summary embed to that webhook showing:
+
+- The HSR version the run used
+- Which modes actually had new/changed rows (e.g. `Side 1: 3553 → 3600`), and which didn't
+- Any per-mode errors, inline with the rest of the summary
+
+If a mode has nothing new, it's just reported as "No changes" — you'll get a message every day
+either way, so you know the automation ran, but it won't be noisy about days with no updates.
+`@mention`s (via `DISCORD_USER_ID`) only fire when something actually failed, so you know to
+re-run the workflow manually.
+
+This is entirely optional: without `DISCORD_WEBHOOK_URL` set, `automate.py` runs exactly as before.
