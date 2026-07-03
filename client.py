@@ -1,5 +1,6 @@
 import genshin
 
+from constants import HSR_SHORT_NAMES
 from enums import ChallengeMode, HSRMode, SheetRow
 from env import require_env
 from models.aa import AnomalyArbitration
@@ -138,6 +139,7 @@ class HSRClient:
     def _get_avatar_names(self, avatars: list[FloorCharacter]) -> list[str]:
         result = []
         for avatar in avatars:
-            result.append(self.nanoka_characters.get_name(avatar.id))
+            name = self.nanoka_characters.get_name(avatar.id)
+            result.append(HSR_SHORT_NAMES.get(name, name) if name is not None else name)
 
         return result

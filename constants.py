@@ -19,3 +19,9 @@ HSR_PATHS = {
     "Memory": "Remembrance",
     "Elation": "Elation",
 }
+
+HSR_SHORT_NAMES = {
+    "Remembrance Trailblazer": "RMC",
+    "Dan Heng • Permansor Terrae": "DHPT",
+    "Mortenax Blade": "MBlade",
+}
