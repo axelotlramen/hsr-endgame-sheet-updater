@@ -21,11 +21,11 @@ class ChallengeMode(str, enum.Enum):
 class HSRMode(str, enum.Enum):
     """Honkai: Star Rail Endgame Mode."""
 
-    APOC = "Apocalyptic Shadow 4"
+    APOC = "Apocalyptic Shadow 4 Starward"
 
-    PF = "Pure Fiction 4"
+    PF = "Pure Fiction 4 Starward"
 
-    MOC = "Memory of Chaos 4"
+    MOC = "Memory of Chaos 4 Starward"
 
     AA = "Anomaly Arbitration"
 

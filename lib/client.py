@@ -62,9 +62,9 @@ class HSRClient:
         rows = []
 
         nodes = [
-            ("Side 1", floor.node_1),
-            ("Side 2", floor.node_2),
-            ("Side 3", floor.node_3),
+            ("Node 1", floor.node_1),
+            ("Node 2", floor.node_2),
+            ("Node 3", floor.node_3),
         ]
 
         for side_name, node in nodes:
