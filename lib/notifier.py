@@ -6,7 +6,13 @@ import httpx
 
 from .enums import ChallengeMode
 
-__all__ = ["ModeReport", "UsageChange", "DiscordNotifier", "notifier_from_env"]
+__all__ = [
+    "ModeReport",
+    "UsageChange",
+    "DiscordNotifier",
+    "notifier_from_env",
+    "MODE_LABELS",
+]
 
 RED_EMBED = 15548997
 GREEN_EMBED = 5763719

@@ -3,11 +3,20 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from lib import ChallengeMode, HSRClient, ModeReport, notifier_from_env
+from lib import (
+    MODE_LABELS,
+    AutomationLogger,
+    ChallengeMode,
+    HSRClient,
+    ModeReport,
+    notifier_from_env,
+)
 
 VERSION_FILE = Path("version.txt")
 
 DAILY_MODES = (ChallengeMode.APOC, ChallengeMode.PF, ChallengeMode.AA)
+
+logger = AutomationLogger(__name__)
 
 
 async def run() -> None:
@@ -16,12 +25,15 @@ async def run() -> None:
 
     try:
         version = VERSION_FILE.read_text().strip()
+        logger.info(f"Starting daily HSR endgame automation (version {version})")
 
         client = HSRClient()
         await client.init()
 
         reports = []
         for mode in DAILY_MODES:
+            label = MODE_LABELS.get(mode, mode.value)
+            logger.info(f"Fetching {label}...")
             try:
                 result = await client.write_mode(mode, version)
                 reports.append(
@@ -29,18 +41,34 @@ async def run() -> None:
                         mode=mode, changed=result.changed, diff_lines=result.diff_lines
                     )
                 )
+                if result.changed:
+                    logger.info(
+                        f"{label}: updated ({len(result.diff_lines)} change(s))"
+                    )
+                else:
+                    logger.info(f"{label}: no changes")
             except Exception as error:
                 reports.append(ModeReport(mode=mode, error=str(error)))
+                logger.error(f"{label}: failed - {error}")
 
         if notifier is not None:
             await notifier.send_daily_summary(version, reports)
+            logger.info("Sent daily summary to Discord")
+        else:
+            logger.warning(
+                "DISCORD_WEBHOOK_URL not set - skipping Discord notification"
+            )
         reported = True
 
         failed_modes = [report.mode.value for report in reports if report.error]
         if failed_modes:
             raise RuntimeError(f"Modes failed: {', '.join(failed_modes)}")
 
+        logger.info("Daily HSR endgame automation finished successfully")
+
     except Exception as error:
+        logger.error(f"Automation failed: {error}")
+
         if notifier is not None and not reported:
             await notifier.send_failure("HSR Endgame Automation (setup)", str(error))
 
