@@ -14,7 +14,15 @@ from lib import (
 
 VERSION_FILE = Path("version.txt")
 
-DAILY_MODES = (ChallengeMode.APOC, ChallengeMode.PF, ChallengeMode.AA)
+
+# Each mode's rows are inserted right after the header, so processing order is the reverse of
+# the resulting on-sheet order (last processed ends up on top): this yields AA, MOC, PF, APOC.
+DAILY_MODES = (
+    ChallengeMode.APOC,
+    ChallengeMode.PF,
+    ChallengeMode.MOC,
+    ChallengeMode.AA,
+)
 
 logger = AutomationLogger(__name__)
 

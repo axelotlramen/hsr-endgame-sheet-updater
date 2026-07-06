@@ -3,7 +3,13 @@ import genshin
 from .constants import HSR_SHORT_NAMES
 from .enums import ChallengeMode, HSRMode, SheetRow
 from .env import require_env
-from .models import AnomalyArbitration, ApocalypticShadow, FloorCharacter, PureFiction
+from .models import (
+    AnomalyArbitration,
+    ApocalypticShadow,
+    FloorCharacter,
+    MemoryOfChaos,
+    PureFiction,
+)
 from .nanoka import NanokaClient
 from .sheets import GoogleSheetsClient, UpsertResult
 
@@ -47,7 +53,11 @@ class HSRClient:
                 rows = self._build_aa_rows(model, version)
 
             case ChallengeMode.MOC:
-                raise NotImplementedError
+                moc_data = await self.genshin_client.get_starrail_challenge(
+                    uid=self.uid, raw=True
+                )
+                model = MemoryOfChaos(**moc_data)
+                rows = self._build_moc_rows(model, version)
 
         return self.gs_client.upsert_rows(rows)
 
@@ -117,6 +127,37 @@ class HSRClient:
 
         return rows
 
+    def _build_moc_rows(self, model: MemoryOfChaos, version: str) -> list[SheetRow]:
+        floor = model.floors[0]
+
+        date = model.seasons[0].begin_time
+        date_str = date.datetime.strftime("%m/%d/%Y")
+
+        rows = []
+
+        nodes = [
+            ("Node 1", floor.node_1),
+            ("Node 2", floor.node_2),
+            ("Node 3", floor.node_3),
+        ]
+
+        for side_name, node in nodes:
+            if node is None:
+                continue
+
+            rows.append(
+                self._build_row(
+                    date_str=date_str,
+                    version=version,
+                    mode=HSRMode.MOC,
+                    side_name=side_name,
+                    avatars=node.avatars,
+                    score="",
+                )
+            )
+
+        return rows
+
     def _build_row(
         self,
         date_str: str,
@@ -124,7 +165,7 @@ class HSRClient:
         mode: HSRMode,
         side_name: str,
         avatars: list[FloorCharacter],
-        score: int,
+        score: int | str,
     ) -> SheetRow:
         return [
             date_str,
