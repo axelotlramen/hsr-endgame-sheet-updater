@@ -46,6 +46,8 @@ class GoogleSheetsClient:
                 self._delete_matching_rows(worksheet, date_str, version, mode_value)
             )
 
+        rows = _preserve_manual_scores(previous_rows, rows)
+
         worksheet.insert_rows(rows, row=2)
 
         diff_lines = _diff_rows(previous_rows, rows)
@@ -74,6 +76,22 @@ class GoogleSheetsClient:
     def _get_endgame_worksheet(self) -> gspread.Worksheet:
         sheet = self.gs_client.open(self.SHEET_NAME)
         return sheet.worksheet(self.WORKSHEET_NAME)
+
+
+def _preserve_manual_scores(
+    previous_rows: list[SheetRow], new_rows: list[SheetRow]
+) -> list[SheetRow]:
+    """Keep a manually-entered score in place when the automation has none to write for that side."""
+    previous_by_side = {row[SIDE_COL]: row for row in previous_rows}
+
+    preserved = []
+    for row in new_rows:
+        previous = previous_by_side.get(row[SIDE_COL])
+        if row[SCORE_COL] == "" and previous is not None and previous[SCORE_COL] != "":
+            row = [*row[:SCORE_COL], previous[SCORE_COL]]
+        preserved.append(row)
+
+    return preserved
 
 
 def _diff_rows(previous_rows: list[SheetRow], new_rows: list[SheetRow]) -> list[str]:
