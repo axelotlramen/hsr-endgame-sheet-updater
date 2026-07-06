@@ -7,7 +7,7 @@ Currently supported:
 - ✅ Apocalyptic Shadow (`apoc`)
 - ✅ Pure Fiction (`pf`)
 - ✅ Anomaly Arbitration (`aa`)
-- 🚧 Memory of Chaos (`moc`, not implemented yet)
+- ✅ Memory of Chaos (`moc`)
 
 The script fetches a player's endgame data through the [`genshin`](https://github.com/seriaati/genshin.py) API, converts character IDs into readable names, and uploads the results to a Google Spreadsheet. It can be run manually for a single mode, or on a daily schedule via GitHub Actions (see [Automation](#automation)).
 
@@ -16,6 +16,7 @@ The script fetches a player's endgame data through the [`genshin`](https://githu
 ## Project layout
 
 - `main.py`, `automate.py`, `weekly_usage.py`: the three entry points (run manually with `uv run <file>.py`).
+- `dump_endgames.py`: a standalone debug script for dumping a mode's raw API response (see [Dumping raw endgame data](#dumping-raw-endgame-data)); not part of the sheet-writing pipeline.
 - `lib/`: all supporting code (the Google Sheets/HoYoLab clients, Discord notifier, pydantic models, etc.), kept out of the root so it's clear at a glance which files are meant to be run directly.
 - `data/`: generated CSVs (see [Weekly character usage report](#weekly-character-usage-report)).
 
@@ -28,14 +29,15 @@ The script fetches a player's endgame data through the [`genshin`](https://githu
 - Formats rows automatically
 - Uploads results directly into Google Sheets
 - Replaces (instead of duplicating) rows when re-run for a date, version, and mode already recorded
+- Preserves manually-entered scores instead of blanking them out on the next run (see [Memory of Chaos scores](#memory-of-chaos-scores))
 - Can send an optional Discord notification after each run (see [Discord notifications](#discord-notifications))
 
 Example output:
 
-| Date       | Version | Mode                 | Side   | Notes | Character 1 | Character 2 | Character 3 | Character 4 | Score |
-| ---------- | ------- | -------------------- | ------ | ----- | ------------ | ------------ | ------------ | ------------ | ----- |
-| 2026-06-17 | 4.3     | Apocalyptic Shadow 4 | Side 1 |       | Tribbie      | Castorice    | Sunday       | Huohuo       | 3890  |
-| 2026-06-17 | 4.3     | Apocalyptic Shadow 4 | Side 2 |       | Firefly      | Fugue        | Ruan Mei     | Gallagher    | 3553  |
+| Date       | Version | Mode                          | Node   | Notes | Character 1 | Character 2 | Character 3 | Character 4 | Score |
+| ---------- | ------- | ------------------------------ | ------ | ----- | ------------ | ------------ | ------------ | ------------ | ----- |
+| 2026-06-17 | 4.3     | Apocalyptic Shadow 4 Starward | Node 1 |       | Tribbie      | Castorice    | Sunday       | Huohuo       | 3890  |
+| 2026-06-17 | 4.3     | Apocalyptic Shadow 4 Starward | Node 2 |       | Firefly      | Fugue        | Ruan Mei     | Gallagher    | 3553  |
 
 ---
 
@@ -120,11 +122,19 @@ Example:
 uv run main.py apoc 4.3
 ```
 
+### Dumping raw endgame data
+
+```bash
+uv run dump_endgames.py MODE
+```
+
+For debugging, or when adjusting how a mode's response is parsed: this fetches a mode's raw (unparsed) API response and writes it straight to `MODE.json` (for example, `uv run dump_endgames.py moc` writes `moc.json`), without touching the Google Sheet.
+
 ---
 
 ## Automation
 
-A GitHub Actions workflow (`.github/workflows/update-sheet.yml`) runs `automate.py` once a day (and can also be triggered manually from the "Run workflow" button in the Actions tab), updating Apocalyptic Shadow, Pure Fiction, and Anomaly Arbitration in one go. Each run replaces any existing rows for the same date, version, and mode instead of duplicating them, so re-running on the same day is safe.
+A GitHub Actions workflow (`.github/workflows/update-sheet.yml`) runs `automate.py` once a day (and can also be triggered manually from the "Run workflow" button in the Actions tab), updating Apocalyptic Shadow, Pure Fiction, Memory of Chaos, and Anomaly Arbitration in one go. Each run replaces any existing rows for the same date, version, and mode instead of duplicating them, so re-running on the same day is safe.
 
 To enable the workflow, add the following secrets under the repository's `Settings -> Secrets and variables -> Actions`:
 
@@ -140,12 +150,16 @@ The first three secrets are required for the workflow to run at all. The last tw
 
 The schedule defaults to `12:00 UTC` daily. Edit the `cron` expression in the workflow file if you'd like it to land closer to your server's daily reset.
 
+### Memory of Chaos scores
+
+Unlike Apocalyptic Shadow, Pure Fiction, and Anomaly Arbitration, HoYoLab's Memory of Chaos data doesn't include a per-side score, so the `Score` column is left blank for Memory of Chaos rows. Fill it in yourself directly in the sheet — the automation checks for an existing value before it (re-)writes a mode's rows, and leaves any cell it has no score to write for untouched, so your manually-entered score survives future runs instead of getting blanked out.
+
 ### Discord notifications
 
 If `DISCORD_WEBHOOK_URL` is set (locally in `.env`, or as a GitHub secret), every run posts one daily summary embed to that webhook, whether or not anything failed. The summary includes:
 
 - The HSR version the run used
-- Which modes had new or changed rows (for example, `Side 1: 3553 → 3600`), and which didn't
+- Which modes had new or changed rows (for example, `Node 1: 3553 → 3600`), and which didn't
 - Any per-mode errors, shown inline alongside the rest of the summary
 
 If a mode has nothing new, it's simply reported as "No changes" (you'll still get a message every day, so you know the automation ran, but it won't be noisy about quiet days). `@mention`s (via `DISCORD_USER_ID`) only happen when something actually failed, so you know to re-run the workflow manually.
