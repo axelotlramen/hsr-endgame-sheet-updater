@@ -27,16 +27,15 @@ Anomaly Arbitration: King,RMC,1,1.0,1,1.0,1,1.0
 Anomaly Arbitration: King,Robin,2,5.0,2,5.0,0,
 Anomaly Arbitration: King,Sunday,7,3.14,7,3.14,4,2.0
 Apocalyptic Shadow 4,Aglaea,1,3585.0,1,3585.0,0,
-Apocalyptic Shadow 4,Anaxa,8,3507.75,8,3507.75,1,3553.0
+Apocalyptic Shadow 4,Anaxa,7,3501.29,7,3501.29,0,
 Apocalyptic Shadow 4,Archer,2,3626.0,2,3626.0,2,3626.0
 Apocalyptic Shadow 4,Argenti,2,3646.5,2,3646.5,0,
-Apocalyptic Shadow 4,Ashveil,1,3926.0,1,3926.0,1,3926.0
 Apocalyptic Shadow 4,Aventurine,10,3591.75,7,3569.29,0,
 Apocalyptic Shadow 4,Bronya,3,3596.0,3,3596.0,0,
-Apocalyptic Shadow 4,Cipher,5,3543.0,5,3543.0,2,3584.0
-Apocalyptic Shadow 4,DHPT,6,3517.17,6,3517.17,3,3573.0
+Apocalyptic Shadow 4,Cipher,4,3540.5,4,3540.5,1,3615.0
+Apocalyptic Shadow 4,DHPT,5,3510.0,5,3510.0,2,3583.0
 Apocalyptic Shadow 4,Dr. Ratio,2,,0,,0,
-Apocalyptic Shadow 4,Feixiao,9,3668.89,8,3658.88,1,3926.0
+Apocalyptic Shadow 4,Feixiao,8,3636.75,7,3620.71,0,
 Apocalyptic Shadow 4,Firefly,3,2926.0,0,,0,
 Apocalyptic Shadow 4,Gallagher,4,3284.67,2,3464.0,1,3615.0
 Apocalyptic Shadow 4,HM7,5,3622.2,5,3622.2,0,
@@ -44,20 +43,29 @@ Apocalyptic Shadow 4,HMC,3,2926.0,0,,0,
 Apocalyptic Shadow 4,Huohuo,5,3433.25,4,3433.25,1,3424.0
 Apocalyptic Shadow 4,Hysilens,2,3476.5,2,3476.5,2,3476.5
 Apocalyptic Shadow 4,Kafka,2,3476.5,2,3476.5,2,3476.5
-Apocalyptic Shadow 4,MBlade,1,3926.0,1,3926.0,1,3926.0
-Apocalyptic Shadow 4,Moze,1,3926.0,1,3926.0,1,3926.0
 Apocalyptic Shadow 4,Mydei,1,3676.0,1,3676.0,0,
 Apocalyptic Shadow 4,Pela,3,3620.0,1,3620.0,0,
 Apocalyptic Shadow 4,Phainon,1,3368.0,1,3368.0,0,
-Apocalyptic Shadow 4,RMC,8,3609.0,8,3609.0,2,3740.0
-Apocalyptic Shadow 4,Robin,15,3620.38,12,3609.67,2,3633.5
+Apocalyptic Shadow 4,RMC,7,3575.57,7,3575.57,1,3637.0
+Apocalyptic Shadow 4,Robin,14,3601.83,11,3588.45,1,3424.0
 Apocalyptic Shadow 4,Ruan Mei,7,3419.4,4,3542.75,0,
 Apocalyptic Shadow 4,Saber,1,3340.0,1,3340.0,0,
-Apocalyptic Shadow 4,Seele,1,3843.0,1,3843.0,1,3843.0
-Apocalyptic Shadow 4,Sparkle,3,3698.33,3,3698.33,3,3698.33
-Apocalyptic Shadow 4,Sunday,13,3541.77,12,3524.5,2,3541.0
+Apocalyptic Shadow 4,Sparkle,2,3626.0,2,3626.0,2,3626.0
+Apocalyptic Shadow 4,Sunday,12,3540.83,11,3521.91,1,3529.0
 Apocalyptic Shadow 4,The Herta,3,3552.67,3,3552.67,0,
 Apocalyptic Shadow 4,Tingyun,1,3809.0,1,3809.0,0,
+Apocalyptic Shadow 4 Starward,Anaxa,1,3553.0,1,3553.0,1,3553.0
+Apocalyptic Shadow 4 Starward,Ashveil,1,3926.0,1,3926.0,1,3926.0
+Apocalyptic Shadow 4 Starward,Cipher,1,3553.0,1,3553.0,1,3553.0
+Apocalyptic Shadow 4 Starward,DHPT,1,3553.0,1,3553.0,1,3553.0
+Apocalyptic Shadow 4 Starward,Feixiao,1,3926.0,1,3926.0,1,3926.0
+Apocalyptic Shadow 4 Starward,MBlade,1,3926.0,1,3926.0,1,3926.0
+Apocalyptic Shadow 4 Starward,Moze,1,3926.0,1,3926.0,1,3926.0
+Apocalyptic Shadow 4 Starward,RMC,1,3843.0,1,3843.0,1,3843.0
+Apocalyptic Shadow 4 Starward,Robin,1,3843.0,1,3843.0,1,3843.0
+Apocalyptic Shadow 4 Starward,Seele,1,3843.0,1,3843.0,1,3843.0
+Apocalyptic Shadow 4 Starward,Sparkle,1,3843.0,1,3843.0,1,3843.0
+Apocalyptic Shadow 4 Starward,Sunday,1,3553.0,1,3553.0,1,3553.0
 Memory of Chaos 12,Aglaea,1,5.0,1,5.0,0,
 Memory of Chaos 12,Anaxa,5,3.4,5,3.4,1,3.0
 Memory of Chaos 12,Archer,2,2.5,2,2.5,2,2.5
@@ -86,30 +94,52 @@ Memory of Chaos 12,Sparkle,3,2.67,3,2.67,3,2.67
 Memory of Chaos 12,Sunday,11,2.88,10,2.88,1,3.0
 Memory of Chaos 12,The Herta,3,2.5,3,2.5,0,
 Memory of Chaos 12,Tingyun,1,5.0,1,5.0,0,
-Pure Fiction 4,Anaxa,8,35805.0,8,35805.0,3,35893.33
+Memory of Chaos 4 Starward,Anaxa,1,6.0,1,6.0,1,6.0
+Memory of Chaos 4 Starward,Archer,1,1.0,1,1.0,1,1.0
+Memory of Chaos 4 Starward,Ashveil,1,1.0,1,1.0,1,1.0
+Memory of Chaos 4 Starward,Cipher,1,6.0,1,6.0,1,6.0
+Memory of Chaos 4 Starward,DHPT,1,6.0,1,6.0,1,6.0
+Memory of Chaos 4 Starward,Feixiao,1,1.0,1,1.0,1,1.0
+Memory of Chaos 4 Starward,MBlade,1,1.0,1,1.0,1,1.0
+Memory of Chaos 4 Starward,Moze,1,1.0,1,1.0,1,1.0
+Memory of Chaos 4 Starward,RMC,1,1.0,1,1.0,1,1.0
+Memory of Chaos 4 Starward,Robin,1,1.0,1,1.0,1,1.0
+Memory of Chaos 4 Starward,Sparkle,1,1.0,1,1.0,1,1.0
+Memory of Chaos 4 Starward,Sunday,1,6.0,1,6.0,1,6.0
+Pure Fiction 4,Anaxa,7,36348.57,7,36348.57,2,37840.0
 Pure Fiction 4,Argenti,7,37464.0,4,36830.0,0,
-Pure Fiction 4,Ashveil,3,35866.67,3,35866.67,3,35866.67
+Pure Fiction 4,Ashveil,2,33800.0,2,33800.0,2,33800.0
 Pure Fiction 4,Aventurine,7,38512.0,3,37520.0,1,32560.0
 Pure Fiction 4,Bronya,2,40000.0,2,40000.0,0,
-Pure Fiction 4,Cipher,6,32626.67,6,32626.67,3,32146.67
-Pure Fiction 4,DHPT,7,35851.43,7,35851.43,4,35680.0
+Pure Fiction 4,Cipher,5,32752.0,5,32752.0,2,32220.0
+Pure Fiction 4,DHPT,6,36493.33,6,36493.33,3,36906.67
 Pure Fiction 4,Feixiao,5,35960.0,3,33266.67,2,33800.0
 Pure Fiction 4,Firefly,1,22882.0,0,,0,
 Pure Fiction 4,Gallagher,2,28401.0,1,33920.0,0,
 Pure Fiction 4,HMC,1,22882.0,0,,0,
-Pure Fiction 4,Herta,11,36168.89,7,35074.29,1,40000.0
+Pure Fiction 4,Herta,10,35690.0,6,34253.33,0,
 Pure Fiction 4,Himeko,2,,0,,0,
 Pure Fiction 4,Huohuo,11,32968.89,8,32090.0,2,25480.0
 Pure Fiction 4,Hysilens,2,25480.0,2,25480.0,2,25480.0
 Pure Fiction 4,Kafka,2,25480.0,2,25480.0,2,25480.0
-Pure Fiction 4,MBlade,1,40000.0,1,40000.0,1,40000.0
 Pure Fiction 4,Mydei,1,40000.0,1,40000.0,0,
-Pure Fiction 4,RMC,10,34048.0,10,34048.0,1,32240.0
-Pure Fiction 4,Robin,16,34800.0,12,33933.33,4,31360.0
+Pure Fiction 4,RMC,9,34248.89,9,34248.89,0,
+Pure Fiction 4,Robin,15,34996.92,11,34087.27,3,31066.67
 Pure Fiction 4,Ruan Mei,4,31441.0,1,40000.0,0,
 Pure Fiction 4,Saber,1,29640.0,1,29640.0,0,
-Pure Fiction 4,Seele,1,32240.0,1,32240.0,1,32240.0
-Pure Fiction 4,Sparkle,2,34420.0,2,34420.0,2,34420.0
-Pure Fiction 4,Sunday,13,36375.38,12,36073.33,3,35893.33
+Pure Fiction 4,Sparkle,1,36600.0,1,36600.0,1,36600.0
+Pure Fiction 4,Sunday,12,36740.0,11,36443.64,2,37840.0
 Pure Fiction 4,The Herta,9,34248.89,9,34248.89,0,
-Pure Fiction 4,Tingyun,5,36546.67,2,34820.0,1,40000.0
+Pure Fiction 4,Tingyun,4,34820.0,1,29640.0,0,
+Pure Fiction 4 Starward,Anaxa,1,32000.0,1,32000.0,1,32000.0
+Pure Fiction 4 Starward,Ashveil,1,40000.0,1,40000.0,1,40000.0
+Pure Fiction 4 Starward,Cipher,1,32000.0,1,32000.0,1,32000.0
+Pure Fiction 4 Starward,DHPT,1,32000.0,1,32000.0,1,32000.0
+Pure Fiction 4 Starward,Herta,1,40000.0,1,40000.0,1,40000.0
+Pure Fiction 4 Starward,MBlade,1,40000.0,1,40000.0,1,40000.0
+Pure Fiction 4 Starward,RMC,1,32240.0,1,32240.0,1,32240.0
+Pure Fiction 4 Starward,Robin,1,32240.0,1,32240.0,1,32240.0
+Pure Fiction 4 Starward,Seele,1,32240.0,1,32240.0,1,32240.0
+Pure Fiction 4 Starward,Sparkle,1,32240.0,1,32240.0,1,32240.0
+Pure Fiction 4 Starward,Sunday,1,32000.0,1,32000.0,1,32000.0
+Pure Fiction 4 Starward,Tingyun,1,40000.0,1,40000.0,1,40000.0
