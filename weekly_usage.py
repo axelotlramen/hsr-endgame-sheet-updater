@@ -18,12 +18,26 @@ CURRENT_THRESHOLD = PATCH_THRESHOLDS[-1]
 MEMBER_COLUMNS = ["Member 1", "Member 2", "Member 3", "Member 4"]
 TOP_UNITS_COUNT = 10
 
+# Sheet rows keep whichever "Endgame Type" label was current when they were written (e.g. older
+# Apocalyptic Shadow rows predate the "Starward" node and are still stored as "Apocalyptic Shadow
+# 4"), but usage counting should treat them as the same endgame. This grouping is local to the
+# weekly usage report - it doesn't rename anything in the sheet or in lib/enums.py's HSRMode.
+ENDGAME_TYPE_ALIASES: dict[str, list[str]] = {
+    "Apocalyptic Shadow": ["Apocalyptic Shadow 4", "Apocalyptic Shadow 4 Starward"],
+    "Pure Fiction": ["Pure Fiction 4", "Pure Fiction 4 Starward"],
+    "Memory of Chaos": ["Memory of Chaos 4", "Memory of Chaos 4 Starward"],
+}
+_ENDGAME_TYPE_LOOKUP = {
+    raw: canonical for canonical, raws in ENDGAME_TYPE_ALIASES.items() for raw in raws
+}
+
 
 def _load_dataframe() -> pd.DataFrame:
     header, *rows = GoogleSheetsClient().get_all_rows()
     df = pd.DataFrame(rows, columns=header)
     df["Patch"] = pd.to_numeric(df["Patch"], errors="coerce")
     df["Score"] = pd.to_numeric(df["Score"], errors="coerce")
+    df["Endgame Type"] = df["Endgame Type"].replace(_ENDGAME_TYPE_LOOKUP)
     return df
 
 
