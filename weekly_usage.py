@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
 
-from lib import GoogleSheetsClient, UsageChange, notifier_from_env
+from lib import AutomationLogger, GoogleSheetsClient, UsageChange, notifier_from_env
 
 DATA_DIR = Path("data")
 OVERALL_CSV = DATA_DIR / "usage_overall.csv"
@@ -133,11 +133,17 @@ def _read_previous(path: Path) -> pd.DataFrame | None:
     return pd.read_csv(path) if path.exists() else None
 
 
+logger = AutomationLogger(__name__)
+
+
 async def run() -> None:
     notifier = notifier_from_env()
 
     try:
+        logger.info("Starting weekly HSR character usage update")
+
         df = _load_dataframe()
+        logger.info(f"Loaded {len(df)} row(s) from the sheet")
 
         overall_previous = _read_previous(OVERALL_CSV)
         by_endgame_previous = _read_previous(BY_ENDGAME_CSV)
@@ -152,16 +158,30 @@ async def run() -> None:
             ["Endgame Type", "Unit"], by_endgame_previous, by_endgame_current
         )
         top_units = build_top_units(overall_current)
+        logger.info(
+            f"Computed usage tables: {len(overall_changes)} overall change(s), "
+            f"{len(by_endgame_changes)} per-endgame change(s) for patch {CURRENT_THRESHOLD}"
+        )
 
         overall_current.to_csv(OVERALL_CSV, index=False)
         by_endgame_current.to_csv(BY_ENDGAME_CSV, index=False)
+        logger.info(f"Wrote {OVERALL_CSV} and {BY_ENDGAME_CSV}")
 
         if notifier is not None:
             await notifier.send_usage_update(
                 overall_changes, by_endgame_changes, top_units, CURRENT_THRESHOLD
             )
+            logger.info("Sent weekly usage update to Discord")
+        else:
+            logger.warning(
+                "DISCORD_WEBHOOK_URL not set - skipping Discord notification"
+            )
+
+        logger.info("Weekly HSR character usage update finished successfully")
 
     except Exception as error:
+        logger.error(f"Weekly character usage update failed: {error}")
+
         if notifier is not None:
             await notifier.send_failure("Weekly Character Usage Update", str(error))
 
