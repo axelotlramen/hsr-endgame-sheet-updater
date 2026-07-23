@@ -30,7 +30,7 @@ class NanokaClient:
     async def close(self):
         await self.client.aclose()
 
-    async def get_characters(self, version: str = "4.3.52") -> "NanokaCharacterData":
+    async def get_characters(self, version: str = "4.4.52") -> "NanokaCharacterData":
         response = await self.client.get(f"/hsr/{version}/character.json")
 
         response.raise_for_status()
