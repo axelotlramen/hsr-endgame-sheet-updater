@@ -11,8 +11,6 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("mode", choices=[mode.value for mode in ChallengeMode])
 
-    parser.add_argument("version")
-
     return parser.parse_args()
 
 
@@ -23,7 +21,7 @@ async def run() -> None:
     client = HSRClient()
     await client.init()
 
-    await client.write_mode(mode, args.version)
+    await client.write_mode(mode)
 
 
 if __name__ == "__main__":

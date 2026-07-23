@@ -12,6 +12,7 @@ from .models import (
 )
 from .nanoka import NanokaClient
 from .sheets import GoogleSheetsClient, UpsertResult
+from .version import VersionResolver
 
 __all__ = ["HSRClient"]
 
@@ -25,49 +26,51 @@ class HSRClient:
 
         self.nanoka_client = NanokaClient()
         self.gs_client = GoogleSheetsClient()
+        self.version_resolver = VersionResolver()
 
     async def init(self) -> None:
         self.nanoka_characters = await self.nanoka_client.get_characters()
 
-    async def write_mode(self, mode: ChallengeMode, version: str) -> UpsertResult:
+    async def write_mode(self, mode: ChallengeMode) -> UpsertResult:
         match mode:
             case ChallengeMode.APOC:
                 apoc_data = await self.genshin_client.get_starrail_apc_shadow(
                     uid=self.uid, raw=True
                 )
                 model = ApocalypticShadow(**apoc_data)
-                rows = self._build_rows(HSRMode.APOC, model, version)
+                rows = self._build_rows(HSRMode.APOC, model)
 
             case ChallengeMode.PF:
                 pf_data = await self.genshin_client.get_starrail_pure_fiction(
                     uid=self.uid, raw=True
                 )
                 model = PureFiction(**pf_data)
-                rows = self._build_rows(HSRMode.PF, model, version)
+                rows = self._build_rows(HSRMode.PF, model)
 
             case ChallengeMode.AA:
                 aa_data = await self.genshin_client.get_anomaly_arbitration(
                     uid=self.uid, raw=True
                 )
                 model = AnomalyArbitration(**aa_data)
-                rows = self._build_aa_rows(model, version)
+                rows = self._build_aa_rows(model)
 
             case ChallengeMode.MOC:
                 moc_data = await self.genshin_client.get_starrail_challenge(
                     uid=self.uid, raw=True
                 )
                 model = MemoryOfChaos(**moc_data)
-                rows = self._build_moc_rows(model, version)
+                rows = self._build_moc_rows(model)
 
         return self.gs_client.upsert_rows(rows)
 
     def _build_rows(
-        self, mode: HSRMode, model: ApocalypticShadow | PureFiction, version: str
+        self, mode: HSRMode, model: ApocalypticShadow | PureFiction
     ) -> list[SheetRow]:
         floor = model.floors[0]
 
-        date = model.seasons[0].begin_time
-        date_str = date.datetime.strftime("%m/%d/%Y")
+        date = model.seasons[0].begin_time.datetime.date()
+        date_str = date.strftime("%m/%d/%Y")
+        version = self.version_resolver.resolve(date)
 
         rows = []
 
@@ -94,10 +97,13 @@ class HSRClient:
 
         return rows
 
-    def _build_aa_rows(self, model: AnomalyArbitration, version: str) -> list[SheetRow]:
+    def _build_aa_rows(self, model: AnomalyArbitration) -> list[SheetRow]:
         record = model.records[0]
 
         date_str = record.season.end_time.datetime.strftime("%m/%d/%Y")
+        version = self.version_resolver.resolve(
+            record.season.begin_time.datetime.date()
+        )
 
         rows = []
 
@@ -127,11 +133,12 @@ class HSRClient:
 
         return rows
 
-    def _build_moc_rows(self, model: MemoryOfChaos, version: str) -> list[SheetRow]:
+    def _build_moc_rows(self, model: MemoryOfChaos) -> list[SheetRow]:
         floor = model.floors[0]
 
-        date = model.seasons[0].begin_time
-        date_str = date.datetime.strftime("%m/%d/%Y")
+        date = model.seasons[0].begin_time.datetime.date()
+        date_str = date.strftime("%m/%d/%Y")
+        version = self.version_resolver.resolve(date)
 
         rows = []
 

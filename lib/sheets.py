@@ -15,6 +15,7 @@ DATE_COL, VERSION_COL, MODE_COL, SIDE_COL, SCORE_COL = 0, 1, 2, 3, -1
 class UpsertResult:
     changed: bool
     diff_lines: list[str] = field(default_factory=list)
+    version: str | None = None
 
 
 class GoogleSheetsClient:
@@ -51,7 +52,11 @@ class GoogleSheetsClient:
         worksheet.insert_rows(rows, row=2)
 
         diff_lines = _diff_rows(previous_rows, rows)
-        return UpsertResult(changed=bool(diff_lines), diff_lines=diff_lines)
+        return UpsertResult(
+            changed=bool(diff_lines),
+            diff_lines=diff_lines,
+            version=rows[0][VERSION_COL],
+        )
 
     def _delete_matching_rows(
         self, worksheet: gspread.Worksheet, date_str: str, version: str, mode_value: str

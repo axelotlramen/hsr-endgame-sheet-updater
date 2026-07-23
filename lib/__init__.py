@@ -6,3 +6,4 @@ from .logger import *  # noqa: F403
 from .nanoka import *  # noqa: F403
 from .notifier import *  # noqa: F403
 from .sheets import *  # noqa: F403
+from .version import *  # noqa: F403

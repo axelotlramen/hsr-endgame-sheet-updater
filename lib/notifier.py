@@ -31,6 +31,7 @@ class ModeReport:
     changed: bool = False
     diff_lines: list[str] = field(default_factory=list)
     error: str | None = None
+    version: str | None = None
 
 
 @dataclass
@@ -64,7 +65,7 @@ class DiscordNotifier:
             {"content": f"{mention}HSR endgame automation failed!", "embeds": [embed]}
         )
 
-    async def send_daily_summary(self, version: str, reports: list[ModeReport]) -> None:
+    async def send_daily_summary(self, reports: list[ModeReport]) -> None:
         """Post one embed summarizing every mode's result, whether or not anything changed."""
         has_errors = any(report.error for report in reports)
         has_changes = any(report.changed for report in reports)
@@ -81,7 +82,6 @@ class DiscordNotifier:
 
         embed = {
             "title": "Daily HSR Endgame Update",
-            "description": f"**Version:** {version}",
             "color": RED_EMBED if has_errors else GREEN_EMBED,
             "fields": fields,
             "timestamp": _now_iso(),
@@ -214,6 +214,8 @@ def _format_avg_change(old_value: float | None, new_value: float | None) -> str:
 
 def _report_field(report: ModeReport) -> dict:
     label = MODE_LABELS.get(report.mode, report.mode.value)
+    if report.version:
+        label = f"{label} (v{report.version})"
 
     if report.error:
         value = f"❌ ```{report.error}```"

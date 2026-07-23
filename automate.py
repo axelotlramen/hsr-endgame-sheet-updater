@@ -1,5 +1,4 @@
 import asyncio
-from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -11,9 +10,6 @@ from lib import (
     ModeReport,
     notifier_from_env,
 )
-
-VERSION_FILE = Path("version.txt")
-
 
 # Each mode's rows are inserted right after the header, so processing order is the reverse of
 # the resulting on-sheet order (last processed ends up on top): this yields AA, MOC, PF, APOC.
@@ -32,8 +28,7 @@ async def run() -> None:
     reported = False
 
     try:
-        version = VERSION_FILE.read_text().strip()
-        logger.info(f"Starting daily HSR endgame automation (version {version})")
+        logger.info("Starting daily HSR endgame automation")
 
         client = HSRClient()
         await client.init()
@@ -43,10 +38,13 @@ async def run() -> None:
             label = MODE_LABELS.get(mode, mode.value)
             logger.info(f"Fetching {label}...")
             try:
-                result = await client.write_mode(mode, version)
+                result = await client.write_mode(mode)
                 reports.append(
                     ModeReport(
-                        mode=mode, changed=result.changed, diff_lines=result.diff_lines
+                        mode=mode,
+                        changed=result.changed,
+                        diff_lines=result.diff_lines,
+                        version=result.version,
                     )
                 )
                 if result.changed:
@@ -60,7 +58,7 @@ async def run() -> None:
                 logger.error(f"{label}: failed - {error}")
 
         if notifier is not None:
-            await notifier.send_daily_summary(version, reports)
+            await notifier.send_daily_summary(reports)
             logger.info("Sent daily summary to Discord")
         else:
             logger.warning(
