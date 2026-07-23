@@ -3,12 +3,22 @@ from dataclasses import dataclass, field
 import gspread
 from google.oauth2.service_account import Credentials
 
-from .enums import SheetRow
+from .enums import HSRMode, SheetRow
 from .env import require_env
 
 __all__ = ["UpsertResult", "GoogleSheetsClient"]
 
 DATE_COL, VERSION_COL, MODE_COL, SIDE_COL, SCORE_COL = 0, 1, 2, 3, -1
+
+# Display order on the sheet: newest version on top; within a version, AA above its own
+# King row, then MoC, then PF, then Apocalyptic Shadow.
+MODE_ORDER = [
+    HSRMode.AA.value,
+    HSRMode.AA_KING.value,
+    HSRMode.MOC.value,
+    HSRMode.PF.value,
+    HSRMode.APOC.value,
+]
 
 
 @dataclass
@@ -34,45 +44,68 @@ class GoogleSheetsClient:
         self.gs_client = gspread.authorize(self.creds)
 
     def upsert_rows(self, rows: list[SheetRow]) -> UpsertResult:
-        """Replace any existing rows for the same (date, version, mode) and report what changed."""
+        """Replace any existing rows for the same (version, mode) and report what changed.
+
+        Rows are kept sorted on the sheet with the newest version on top, and - within a
+        version - in MODE_ORDER (AA above its King row, then MoC, then PF, then Apocalyptic
+        Shadow). A version/mode this call doesn't touch (e.g. an older version's rows) is
+        left in place, so old data isn't lost when a mode moves on to a new version.
+        """
         if not rows:
             return UpsertResult(changed=False)
 
         worksheet = self._get_endgame_worksheet()
 
-        keys = {(row[DATE_COL], row[VERSION_COL], row[MODE_COL]) for row in rows}
+        version = rows[0][VERSION_COL]
+        mode_values = list(dict.fromkeys(row[MODE_COL] for row in rows))
+
         previous_rows: list[SheetRow] = []
-        for date_str, version, mode_value in keys:
+        for mode_value in mode_values:
             previous_rows.extend(
-                self._delete_matching_rows(worksheet, date_str, version, mode_value)
+                self._delete_matching_rows(worksheet, version, mode_value)
             )
 
         rows = _preserve_manual_scores(previous_rows, rows)
 
-        worksheet.insert_rows(rows, row=2)
+        insert_at = self._find_insert_row(worksheet, version, mode_values)
+        worksheet.insert_rows(rows, row=insert_at)
 
         diff_lines = _diff_rows(previous_rows, rows)
         return UpsertResult(
-            changed=bool(diff_lines),
-            diff_lines=diff_lines,
-            version=rows[0][VERSION_COL],
+            changed=bool(diff_lines), diff_lines=diff_lines, version=version
         )
 
     def _delete_matching_rows(
-        self, worksheet: gspread.Worksheet, date_str: str, version: str, mode_value: str
+        self, worksheet: gspread.Worksheet, version: str, mode_value: str
     ) -> list[SheetRow]:
         values = worksheet.get_all_values()
 
         matching = [
             (row_number, row)
             for row_number, row in enumerate(values, start=1)
-            if row[DATE_COL : MODE_COL + 1] == [date_str, version, mode_value]
+            if row[VERSION_COL] == version and row[MODE_COL] == mode_value
         ]
 
         for row_number, _ in reversed(matching):
             worksheet.delete_rows(row_number)
 
         return [row for _, row in matching]
+
+    def _find_insert_row(
+        self, worksheet: gspread.Worksheet, version: str, mode_values: list[str]
+    ) -> int:
+        """Return the row number where a (version, mode_values) block belongs, sheet-sorted."""
+        group_key = min(_sort_key(version, mode_value) for mode_value in mode_values)
+
+        values = worksheet.get_all_values()
+        for row_number, row in enumerate(values, start=1):
+            if row_number == 1:
+                continue
+
+            if _sort_key(row[VERSION_COL], row[MODE_COL]) > group_key:
+                return row_number
+
+        return len(values) + 1
 
     def get_all_rows(self) -> list[SheetRow]:
         """Return every row in the Endgame worksheet, including the header row."""
@@ -81,6 +114,12 @@ class GoogleSheetsClient:
     def _get_endgame_worksheet(self) -> gspread.Worksheet:
         sheet = self.gs_client.open(self.SHEET_NAME)
         return sheet.worksheet(self.WORKSHEET_NAME)
+
+
+def _sort_key(version: str, mode_value: str) -> tuple[tuple[int, int], int]:
+    """Sort key for a (version, mode) block: newest version first, then MODE_ORDER."""
+    major, minor = (int(part) for part in version.split("."))
+    return (-major, -minor), MODE_ORDER.index(mode_value)
 
 
 def _preserve_manual_scores(

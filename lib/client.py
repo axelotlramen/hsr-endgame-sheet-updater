@@ -101,9 +101,7 @@ class HSRClient:
         record = model.records[0]
 
         date_str = record.season.end_time.datetime.strftime("%m/%d/%Y")
-        version = self.version_resolver.resolve(
-            record.season.begin_time.datetime.date()
-        )
+        version = record.season.game_version
 
         rows = []
 
