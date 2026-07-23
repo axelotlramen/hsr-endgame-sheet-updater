@@ -11,8 +11,8 @@ from lib import (
     notifier_from_env,
 )
 
-# Each mode's rows are inserted right after the header, so processing order is the reverse of
-# the resulting on-sheet order (last processed ends up on top): this yields AA, MOC, PF, APOC.
+# This only controls fetch/log order - lib/sheets.py's upsert_rows keeps the sheet itself sorted
+# by version and mode regardless of the order modes are processed in here.
 DAILY_MODES = (
     ChallengeMode.APOC,
     ChallengeMode.PF,

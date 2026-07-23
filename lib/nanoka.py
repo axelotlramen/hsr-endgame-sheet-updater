@@ -1,6 +1,6 @@
 import httpx
 
-from .constants import HSR_ELEMENTS, HSR_PATHS
+from .constants import HSR_PATHS
 
 __all__ = ["NanokaClient", "NanokaCharacterData"]
 
@@ -68,14 +68,6 @@ class NanokaCharacterData:
             return rule(self, character_id)
 
         return name
-
-    def get_element(self, character_id: str | int) -> str | None:
-        character = self.get_character(character_id)
-
-        if character is None:
-            return None
-
-        return HSR_ELEMENTS.get(character.get("damageType", ""), "")
 
     def get_path(self, character_id: str | int) -> str | None:
         character = self.get_character(character_id)

@@ -1,14 +1,4 @@
-__all__ = ["HSR_ELEMENTS", "HSR_PATHS", "HSR_SHORT_NAMES"]
-
-HSR_ELEMENTS = {
-    "Ice": "Ice",
-    "Fire": "Fire",
-    "Lightning": "Lightning",
-    "Wind": "Wind",
-    "Physical": "Physical",
-    "Quantum": "Quantum",
-    "Imaginary": "Imaginary",
-}
+__all__ = ["HSR_PATHS", "HSR_SHORT_NAMES"]
 
 HSR_PATHS = {
     "Knight": "Preservation",

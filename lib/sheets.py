@@ -59,12 +59,7 @@ class GoogleSheetsClient:
         version = rows[0][VERSION_COL]
         mode_values = list(dict.fromkeys(row[MODE_COL] for row in rows))
 
-        previous_rows: list[SheetRow] = []
-        for mode_value in mode_values:
-            previous_rows.extend(
-                self._delete_matching_rows(worksheet, version, mode_value)
-            )
-
+        previous_rows = self._delete_matching_rows(worksheet, version, mode_values)
         rows = _preserve_manual_scores(previous_rows, rows)
 
         insert_at = self._find_insert_row(worksheet, version, mode_values)
@@ -76,14 +71,14 @@ class GoogleSheetsClient:
         )
 
     def _delete_matching_rows(
-        self, worksheet: gspread.Worksheet, version: str, mode_value: str
+        self, worksheet: gspread.Worksheet, version: str, mode_values: list[str]
     ) -> list[SheetRow]:
         values = worksheet.get_all_values()
 
         matching = [
             (row_number, row)
             for row_number, row in enumerate(values, start=1)
-            if row[VERSION_COL] == version and row[MODE_COL] == mode_value
+            if row[VERSION_COL] == version and row[MODE_COL] in mode_values
         ]
 
         for row_number, _ in reversed(matching):
